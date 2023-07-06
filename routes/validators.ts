@@ -58,3 +58,51 @@ export function validateWithdrawRequest(
 
   return [200, ""];
 }
+
+export type BundleParams = {
+  root: string;
+  leaves: string[];
+  network: string;
+  captchaText: string
+};
+
+export function validateBundleUpload(json: BundleParams): ErrorResponse {
+  if (!json.root) {
+    return [400, "Missing root"];
+  }
+  if (!json.leaves) {
+    return [400, "Missing leaves"];
+  }
+  if (!json.network) {
+    return [400, "Network id is missing"];
+  }
+  if(!json.captchaText){
+    return  [400,"Captcha text missing"];
+  }
+
+  if (incorrectNetwork(json.network as ChainIds)) {
+    return [400, "Unsupported network"];
+  }
+
+  return [200, ""];
+}
+
+export type BundleFetch = {
+  root: string;
+  network: string;
+};
+
+export function validateBundleFetch(json: BundleFetch) {
+  if (!json.root) {
+    return [400, "Missing root"];
+  }
+  if (!json.network) {
+    return [400, "Network id is missing"];
+  }
+  if (incorrectNetwork(json.network as ChainIds)) {
+    return [400, "Unsupported network"];
+  }
+
+  return [200, ""];
+}
+
