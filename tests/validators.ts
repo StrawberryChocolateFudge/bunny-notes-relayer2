@@ -1,6 +1,8 @@
 import { assertEquals } from "https://deno.land/std@0.80.0/testing/asserts.ts";
 import {
+  BundleParams,
   RelayWithdrawParams,
+  validateBundleUpload,
   validateWithdrawRequest,
 } from "../routes/validators.ts";
 import {
@@ -111,4 +113,44 @@ Deno.test("Request mutex should lock before expiry", () => {
   assertEquals(open, true);
   assertEquals(msg, "");
   //Now the request was allowed to pass through
+});
+
+Deno.test("Bundle Upload Validator", () => {
+  const mockBundleInput: BundleParams = {
+    root: "0xroot",
+    leaves: ["0xcommitment", "0xcommitment"],
+    network: "0x61",
+  };
+
+  let [status, msg] = validateBundleUpload(mockBundleInput);
+  assertEquals(status, 200);
+  assertEquals(msg, "");
+  [status, msg] = validateBundleUpload({
+    ...mockBundleInput,
+    //@ts-ignore mocking invalid api request
+    root: undefined,
+  });
+  assertEquals(status, 400);
+  assertEquals(msg, "Missing root");
+  [status, msg] = validateBundleUpload({
+    ...mockBundleInput,
+    //@ts-ignore mocking invalid api request
+    leaves: undefined,
+  });
+  assertEquals(status, 400);
+  assertEquals(msg, "Missing leaves");
+  [status, msg] = validateBundleUpload({
+    ...mockBundleInput,
+    //@ts-ignore mocking invalid api request
+    network: undefined,
+  });
+  assertEquals(status, 400);
+  assertEquals(msg, "Network id is missing");
+  [status, msg] = validateBundleUpload({
+    ...mockBundleInput,
+    //@ts-ignore mocking invalid api request
+    network: "123",
+  });
+  assertEquals(status, 400);
+  assertEquals(msg, "Unsupported network");
 });
