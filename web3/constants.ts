@@ -42,6 +42,17 @@ export enum BunnyNotesContractAddress {
   ETH_MAINNET = "",
 }
 
+export enum BunnyBundlesContractAddress {
+  BTT_DONAU_TESTNET = "0xA4e589a0A02EEaE9876c1B776E9c8D0bA9EFdfd8",
+  BSC_TESTNET = "",
+
+  //MAINNETS:
+  BTT_MAINNET = "",
+  BSC_MAINNET = "",
+  POLYGON_MAINNET = "",
+  ETH_MAINNET = "",
+}
+
 export enum RPCURLS {
   BTT_TESTNET = "https://pre-rpc.bt.io/",
   BSC_TESTNET = "https://data-seed-prebsc-1-s3.binance.org:8545",
@@ -73,6 +84,18 @@ export const noteContractAddresses: {
   [ChainIds.ETH_MAINNET]: BunnyNotesContractAddress.ETH_MAINNET,
   [ChainIds.BSC_MAINNET]: BunnyNotesContractAddress.BSC_MAINNET,
   [ChainIds.POLYGON_MAINNET]: BunnyNotesContractAddress.POLYGON_MAINNET,
+};
+
+export const bundleContractAddresses: {
+  [key in ChainIds]: BunnyBundlesContractAddress;
+} = {
+  [ChainIds.BTT_TESTNET_ID]: BunnyBundlesContractAddress.BTT_DONAU_TESTNET,
+  [ChainIds.BSC_TESTNET_ID]: BunnyBundlesContractAddress.BSC_TESTNET,
+  // Mainnets
+  [ChainIds.BTT_MAINNET_ID]: BunnyBundlesContractAddress.BTT_MAINNET,
+  [ChainIds.ETH_MAINNET]: BunnyBundlesContractAddress.ETH_MAINNET,
+  [ChainIds.BSC_MAINNET]: BunnyBundlesContractAddress.BSC_MAINNET,
+  [ChainIds.POLYGON_MAINNET]: BunnyBundlesContractAddress.POLYGON_MAINNET,
 };
 
 export const networkNameFromId: { [key in ChainIds]: NetworkNames } = {
