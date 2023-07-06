@@ -1,7 +1,10 @@
-import { ethers } from "npm:ethers@6.5.1";
+import { ethers, ZeroAddress } from "npm:ethers@6.5.1";
 
 import bunnyNotesArtifact from "../BunnyNotes.json" assert { type: "json" };
+import bunnyBundlesArtifact from "../BunnyBundles.json" assert { type: "json" };
+
 import {
+  bundleContractAddresses,
   ChainIds,
   FEEDIVIDER,
   noteContractAddresses,
@@ -31,7 +34,7 @@ export async function handleWithdraw(json: RelayWithdrawParams) {
     return [errCode, gasPriceRes as string];
   }
 
-  const contract = await getContract(wallet, network);
+  const contract = await getBunnyNotesContract(wallet, network);
   const [estimateGasCode, estimateGasResult] = await estimateWithdrawGas(
     contract,
     proof,
@@ -91,7 +94,7 @@ async function getGasPrice(
   return [200, gasPrice];
 }
 
-function getContract(
+function getBunnyNotesContract(
   wallet: ethers.Wallet,
   network: ChainIds,
 ): ethers.Contract {
@@ -99,6 +102,18 @@ function getContract(
   return new ethers.Contract(
     address,
     bunnyNotesArtifact.abi,
+    wallet,
+  );
+}
+
+function getBunnyBundlesContract(
+  wallet: ethers.Wallet,
+  network: ChainIds,
+) {
+  const address = bundleContractAddresses[network];
+  return new ethers.Contract(
+    address,
+    bunnyBundlesArtifact.abi,
     wallet,
   );
 }
@@ -131,6 +146,21 @@ async function getCommitmentData(
   return await contract.commitments(commitment);
 }
 
+async function getBundleByRoot(contract: ethers.Contract, root: string) {
+  return await contract.bundles(root);
+}
+
+export async function checkBundleExists(network: ChainIds, root: string) {
+  const provider = getProvider(network);
+  const wallet = getWallet(provider);
+  const contract = getBunnyBundlesContract(wallet, network);
+  const bundle = await getBundleByRoot(contract, root);
+  if (bundle.creator === ZeroAddress) {
+    return false;
+  }
+  return true;
+}
+
 async function getFee(
   contract: ethers.Contract,
   commitment: string,
@@ -142,7 +172,6 @@ async function getFee(
       // For now I don't relay tokens at all
       return [400, "Unable to relay tokens"];
     }
-
     const denomination = commitmentData.denomination as bigint;
     const fee = denomination / BigInt(FEEDIVIDER);
     return [200, fee];
